@@ -24,20 +24,20 @@ class HtmlComponent extends React.Component {
                             <th></th>
                         </tr>
                         <tr class="table_holdings">
-                            <td><div class="circ_frame"><img src="https://i.ibb.co/tpg5K64/black-bomb.png" class="table_symbol"></div></td>
+                            <td><div class="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" class="table_symbol"></div></td>
                             <td class="regular">$BOMB</td>
                             <td>8.66M</td>
                             <td>60.9k</td>
                             <td>$0.24<br>1.05 BTCB</td>
-                            <td><img src="https://i.ibb.co/kyxFdbX/metamask.png" class="metamask_symbol"></td>
+                            <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" class="metamask_symbol"></td>
                         </tr>
                         <tr class="table_holdings">
-                            <td><div class="circ_frame"><img src="https://i.ibb.co/2qgkJjc/favicon.png" class="table_symbol"></div></td>
+                            <td><div class="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="table_symbol"></div></td>
                             <td class="regular">$BSHARE</td>
                             <td>11.43k</td>
                             <td>8.49m</td>
                             <td>$300<br>13000 BTCB</td>
-                            <td><img src="https://i.ibb.co/kyxFdbX/metamask.png" class="metamask_symbol"></td>
+                            <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" class="metamask_symbol"></td>
                         </tr>
                         <tr class="table_holdings">
                             <td class="noborder"><div class="circ_frame"><img src="https://i.ibb.co/p4KHjkq/bbond.png" class="table_symbol"></div></td>
@@ -45,7 +45,7 @@ class HtmlComponent extends React.Component {
                             <td>20.00K</td>
                             <td>175k</td>
                             <td>$0.28<br>1.15 BTCB</td>
-                            <td><img src="https://i.ibb.co/kyxFdbX/metamask.png" class="metamask_symbol"></td>
+                            <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" class="metamask_symbol"></td>
                         </tr>
                     </table>
                 </div>
@@ -74,7 +74,7 @@ class HtmlComponent extends React.Component {
             <div class="translucent_box" id="boardroom">
                 <div id="boardroom_top">
                     <div class="boardroom_head">
-                        <img src="https://i.ibb.co/2qgkJjc/favicon.png" class="title_img">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="title_img">
                         <div class="boardroom_head_text">
                             <div id="boardroom_title">
                                 <p class="bold_big">Boardroom</p>
@@ -87,7 +87,7 @@ class HtmlComponent extends React.Component {
                         </div>
                     </div>
                     <hr align="right">
-                    <p class="regular">Total Staked: <img src="https://i.ibb.co/2qgkJjc/favicon.png" class="curr_symbol">7232</p>
+                    <p class="regular">Total Staked: <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="curr_symbol">7232</p>
                 </div>
                 <div class="boardroom_content">
                     <div style="overflow-x:auto;">
@@ -99,9 +99,9 @@ class HtmlComponent extends React.Component {
                             </tr>
                             <tr>
                                 <td class="bold_big stat_table_cell">2%</td>
-                                <td class="bold_small stat_table_cell"><img src="https://i.ibb.co/2qgkJjc/favicon.png" class="curr_symbol">6.0000<br>
+                                <td class="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="curr_symbol">6.0000<br>
                                     <p class="semi_bold">≈ $1171.62</p></td>
-                                <td class="bold_small stat_table_cell"><img src="https://i.ibb.co/tpg5K64/black-bomb.png" class="curr_symbol">1660.4<br>
+                                <td class="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" class="curr_symbol">1660.4<br>
                                         <p class="semi_bold">≈ $298.88</p></td>
                             </tr>
                         </table>
@@ -111,7 +111,7 @@ class HtmlComponent extends React.Component {
                             <button class="circular">Deposit <i class="fa-solid fa-circle-arrow-up inv_icon"></i></button>
                             <button class="circular">Withdraw <i class="fa-solid fa-circle-arrow-down inv_icon"></i></button>
                         </div>
-                        <button class="circular">Claim Rewards <img src="https://i.ibb.co/2qgkJjc/favicon.png" class="button_symbol"></button>                            
+                        <button class="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="button_symbol"></button>                            
                     </div>
                 </div>
             </div>
@@ -126,10 +126,10 @@ class HtmlComponent extends React.Component {
                 <p class="bold_big" id="farms_main_title">Bomb Farms</p>
                 <p class="regular">Stake your LP tokens in our farms to start earning $BSHARE</p>
             </div>
-            <button class="circular">Claim All <img src="https://i.ibb.co/2qgkJjc/favicon.png" class="button_symbol"></button>
+            <button class="circular">Claim All <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="button_symbol"></button>
         </div>
         <div id="btcb_header">
-            <img src="https://i.ibb.co/VwrdhL1/bomb-btc.png" class="title_img">
+            <img src="https://app.bomb.money/static/media/bomb-bitcoin-LP.084590b2.png" class="title_img">
             <div id="btcb_header_text">
                 <div id="btcb_title">
                     <p class="bold_big">BOMB-BTCB</p>
@@ -148,21 +148,21 @@ class HtmlComponent extends React.Component {
                 </tr>
                 <tr>
                     <td class="bold_big stat_table_cell">2%</td>
-                    <td class="bold_small stat_table_cell"><img src="https://i.ibb.co/VwrdhL1/bomb-btc.png" class="curr_symbol">124.21<br>
+                    <td class="bold_small stat_table_cell"><img src="https://app.bomb.money/static/media/bomb-bitcoin-LP.084590b2.png" class="curr_symbol">124.21<br>
                         <p class="semi_bold">≈ $1171.62</p></td>
-                    <td class="bold_small stat_table_cell"><img src="https://i.ibb.co/2qgkJjc/favicon.png" class="curr_symbol">6.4413<br>
+                    <td class="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="curr_symbol">6.4413<br>
                             <p class="semi_bold">≈ $298.88</p></td>
                 </tr>
             </table>
             <div>
                 <button class="circular">Deposit <i class="fa-solid fa-circle-arrow-up inv_icon"></i></button>
                 <button class="circular">Withdraw <i class="fa-solid fa-circle-arrow-down inv_icon"></i></button>
-                <button class="circular">Claim Rewards <img src="https://i.ibb.co/2qgkJjc/favicon.png" class="button_symbol"></button>                            
+                <button class="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="button_symbol"></button>                            
             </div>
         </div>
         <hr class="hr_total">
         <div id="btcb_header">
-            <img src="https://i.ibb.co/8XVxvrm/bshare-bnb.png" class="title_img">
+            <img src="https://app.bomb.money/static/media/bshare-bnb-LP.9144444a.png" class="title_img">
             <div id="btcb_header_text">
                 <div id="btcb_title">
                     <p class="bold_big">BSHARE-BNB</p>
@@ -181,22 +181,22 @@ class HtmlComponent extends React.Component {
                 </tr>
                 <tr>
                     <td class="bold_big stat_table_cell">2%</td>
-                    <td class="bold_small stat_table_cell"><img src="https://i.ibb.co/8XVxvrm/bshare-bnb.png" class="curr_symbol">124.21<br>
+                    <td class="bold_small stat_table_cell"><img src="https://app.bomb.money/static/media/bshare-bnb-LP.9144444a.png" class="curr_symbol">124.21<br>
                         <p class="semi_bold">≈ $1171.62</p></td>
-                    <td class="bold_small stat_table_cell"><img src="https://i.ibb.co/2qgkJjc/favicon.png" class="curr_symbol">6.4413<br>
+                    <td class="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="curr_symbol">6.4413<br>
                             <p class="semi_bold">≈ $298.88</p></td>
                 </tr>
             </table>
             <div>
                 <button class="circular">Deposit <i class="fa-solid fa-circle-arrow-up inv_icon"></i></button>
                 <button class="circular">Withdraw <i class="fa-solid fa-circle-arrow-down inv_icon"></i></button>
-                <button class="circular">Claim Rewards <img src="https://i.ibb.co/2qgkJjc/favicon.png" class="button_symbol"></button>                                         
+                <button class="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" class="button_symbol"></button>                                         
             </div>
         </div>
     </div>
     <div class="translucent_box" id="bonds">
         <div class="boardroom_head">
-            <img src="https://i.ibb.co/p4KHjkq/bbond.png" class="title_img">
+            <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" class="title_img">
             <div class="boardroom_head_text">
                 <p class="bold_big">Bonds</p>
                 <p class="regular">BBOND can be purchased only on contraction periods, when TWAP of BOMB is below 1</p>
@@ -210,7 +210,7 @@ class HtmlComponent extends React.Component {
                 </tr>
                 <tr>
                     <td class="bold_small stat_table_cell">BBOND = 6.2872 BTCB</td>
-                    <td class="bold_big stat_table_cell"><img src="https://i.ibb.co/tpg5K64/black-bomb.png" class="curr_symbol">456</td>
+                    <td class="bold_big stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" class="curr_symbol">456</td>
                 </tr>
             </table>
             <div>
