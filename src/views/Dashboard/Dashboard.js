@@ -40,7 +40,7 @@ class HtmlComponent extends React.Component {
                             <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" class="metamask_symbol"></td>
                         </tr>
                         <tr class="table_holdings">
-                            <td class="noborder"><div class="circ_frame"><img src="https://i.ibb.co/p4KHjkq/bbond.png" class="table_symbol"></div></td>
+                            <td class="noborder"><div class="circ_frame"><img src="https://app.bomb.money/static/media/bbond.6a97acfd.png" class="table_symbol"></div></td>
                             <td class="regular noborder">$BBOND</td>
                             <td>20.00K</td>
                             <td>175k</td>
@@ -196,7 +196,7 @@ class HtmlComponent extends React.Component {
     </div>
     <div class="translucent_box" id="bonds">
         <div class="boardroom_head">
-            <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" class="title_img">
+            <img src="https://app.bomb.money/static/media/bbond.6a97acfd.png" class="title_img">
             <div class="boardroom_head_text">
                 <p class="bold_big">Bonds</p>
                 <p class="regular">BBOND can be purchased only on contraction periods, when TWAP of BOMB is below 1</p>
