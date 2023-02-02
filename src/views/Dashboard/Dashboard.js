@@ -8,6 +8,17 @@ import ProgressCountdown from '../Boardroom/components/ProgressCountdown';
 import moment from 'moment';
 import useTreasuryAllocationTimes from '../../hooks/useTreasuryAllocationTimes';
 import useCashPriceInEstimatedTWAP from '../../hooks/useCashPriceInEstimatedTWAP';
+import useTotalStakedOnBoardroom from '../../hooks/useTotalStakedOnBoardroom';
+import { getDisplayBalance } from '../../utils/formatBalance';
+import useFetchBoardroomAPR from '../../hooks/useFetchBoardroomAPR';
+import useStakedBalanceOnBoardroom from '../../hooks/useStakedBalanceOnBoardroom';
+import useStakedTokenPriceInDollars from '../../hooks/useStakedTokenPriceInDollars';
+import useEarningsOnBoardroom from '../../hooks/useEarningsOnBoardroom';
+import useApprove, {ApprovalState} from '../../hooks/useApprove';
+import useWithdrawCheck from '../../hooks/boardroom/useWithdrawCheck';
+import useClaimRewardCheck from '../../hooks/boardroom/useClaimRewardCheck';
+import useRedeemOnBoardroom from '../../hooks/useRedeemOnBoardroom';
+import useHarvestFromBoardroom from '../../hooks/useHarvestFromBoardroom';
 
 import useBombStats from '../../hooks/useBombStats';
 import useLpStats from '../../hooks/useLpStats';
@@ -44,44 +55,70 @@ const HtmlComponent = () => {
     const bombPriceInDollars = useMemo(
         () => (bombStats ? Number(bombStats.priceInDollars).toFixed(2) : null),
         [bombStats],
-      );
-      const bombPriceInBNB = useMemo(() => (bombStats ? Number(bombStats.tokenInFtm).toFixed(4) : null), [bombStats]);
-      const bombCirculatingSupply = useMemo(() => (bombStats ? String(bombStats.circulatingSupply) : null), [bombStats]);
-      const bombTotalSupply = useMemo(() => (bombStats ? String(bombStats.totalSupply) : null), [bombStats]);
-    
-      //BShare stats
-      const bSharePriceInDollars = useMemo(
+    );
+    const bombPriceInBNB = useMemo(() => (bombStats ? Number(bombStats.tokenInFtm).toFixed(4) : null), [bombStats]);
+    const bombCirculatingSupply = useMemo(() => (bombStats ? String(bombStats.circulatingSupply) : null), [bombStats]);
+    const bombTotalSupply = useMemo(() => (bombStats ? String(bombStats.totalSupply) : null), [bombStats]);
+
+    //BShare stats
+    const bSharePriceInDollars = useMemo(
         () => (bShareStats ? Number(bShareStats.priceInDollars).toFixed(2) : null),
         [bShareStats],
-      );
-      const bSharePriceInBNB = useMemo(
+    );
+    const bSharePriceInBNB = useMemo(
         () => (bShareStats ? Number(bShareStats.tokenInFtm).toFixed(4) : null),
         [bShareStats],
-      );
-      const bShareCirculatingSupply = useMemo(
+    );
+    const bShareCirculatingSupply = useMemo(
         () => (bShareStats ? String(bShareStats.circulatingSupply) : null),
         [bShareStats],
-      );
-      const bShareTotalSupply = useMemo(() => (bShareStats ? String(bShareStats.totalSupply) : null), [bShareStats]);
-    
-      //Bond stats
-      const tBondPriceInDollars = useMemo(
+    );
+    const bShareTotalSupply = useMemo(() => (bShareStats ? String(bShareStats.totalSupply) : null), [bShareStats]);
+
+    //Bond stats
+    const tBondPriceInDollars = useMemo(
         () => (tBondStats ? Number(tBondStats.priceInDollars).toFixed(2) : null),
         [tBondStats],
-      );
-      const tBondPriceInBNB = useMemo(() => (tBondStats ? Number(tBondStats.tokenInFtm).toFixed(4) : null), [tBondStats]);
-      const tBondCirculatingSupply = useMemo(
+    );
+    const tBondPriceInBNB = useMemo(() => (tBondStats ? Number(tBondStats.tokenInFtm).toFixed(4) : null), [tBondStats]);
+    const tBondCirculatingSupply = useMemo(
         () => (tBondStats ? String(tBondStats.circulatingSupply) : null),
         [tBondStats],
-      );
-      const tBondTotalSupply = useMemo(() => (tBondStats ? String(tBondStats.totalSupply) : null), [tBondStats]);  
-      
-      //Aggregate ta==Stats
-      const TVL = useTotalValueLocked();
-      const cashStat = useCashPriceInEstimatedTWAP();
-      const scalingFactor = useMemo(() => (cashStat ? Number(cashStat.priceInDollars).toFixed(4) : null), [cashStat]);
-      const cashPrice = useCashPriceInLastTWAP();
-      const scalingFactor2 = useMemo(() => (cashPrice ? Number(cashPrice.priceInDollars).toFixed(4) : null), [cashPrice]);
+    );
+    const tBondTotalSupply = useMemo(() => (tBondStats ? String(tBondStats.totalSupply) : null), [tBondStats]);  
+    
+    //Aggregate stats
+    const TVL = useTotalValueLocked();
+    const cashStat = useCashPriceInEstimatedTWAP();
+    const scalingFactor = useMemo(() => (cashStat ? Number(cashStat.priceInDollars).toFixed(4) : null), [cashStat]);
+    const cashPrice = useCashPriceInLastTWAP();
+    const scalingFactor2 = useMemo(() => (cashPrice ? Number(cashPrice.priceInDollars).toFixed(4) : null), [cashPrice]);
+    
+    //Boardroom
+    const totalStaked = useTotalStakedOnBoardroom();
+    const boardroomAPR = useFetchBoardroomAPR();
+    const stakedBalance = useStakedBalanceOnBoardroom();
+    const stakedTokenPriceInDollars = useStakedTokenPriceInDollars('BSHARE', bombFinance.BSHARE);
+    const tokenPriceInDollars = useMemo(
+      () =>
+        stakedTokenPriceInDollars
+          ? (Number(stakedTokenPriceInDollars) * Number(getDisplayBalance(stakedBalance))).toFixed(2).toString()
+          : null,
+        [stakedTokenPriceInDollars, stakedBalance],
+    );
+    const earnings = useEarningsOnBoardroom();
+    const tokenPriceInDollarsEarned = useMemo(
+        () => (bombStats ? Number(bombStats.priceInDollars).toFixed(2) : null),
+        [bombStats],
+    );
+    const earnedInDollars = (Number(tokenPriceInDollarsEarned) * Number(getDisplayBalance(earnings))).toFixed(2);
+
+    //Boardroom Buttons
+    const [approveStatus, approve] = useApprove(bombFinance.BSHARE, bombFinance.contracts.Boardroom.address);
+    const canWithdraw = useWithdrawCheck();
+    const canClaimReward = useClaimRewardCheck();
+    const { onRedeem } = useRedeemOnBoardroom();
+    const {onReward} = useHarvestFromBoardroom();
 
     return(<div>
         {/*Frontend for Bomb Money Summary Page*/}
@@ -165,12 +202,12 @@ const HtmlComponent = () => {
                     </div>
                     <div id="boardroom_caption">
                       <p className="regular">Stake BSHARE and earn BOMB every epoch</p>
-                      <p className="regular">TVL: <span className="bold_small">$1,008,430</span></p>
+                      <p className="regular">TVL: <span className="bold_small">{ TVL }</span></p>
                     </div>
                   </div>
                 </div>
                 <hr align="right" />
-                <p className="regular">Total Staked: <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />7232</p>
+                <p className="regular">Total Staked: <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />{ getDisplayBalance(totalStaked) }</p>
               </div>
               <div className="boardroom_content">
                 <div style={{"overflowX":"auto"}}>
@@ -181,20 +218,25 @@ const HtmlComponent = () => {
                         <th className="stat_table_head">Earned:</th>
                       </tr>
                       <tr>
-                        <td className="bold_big stat_table_cell">2%</td>
-                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />6.0000<br />
-                          <p className="semi_bold">≈ $1171.62</p></td>
-                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="curr_symbol" />1660.4<br />
-                          <p className="semi_bold">≈ $298.88</p></td>
+                        <td className="bold_big stat_table_cell">{ boardroomAPR.toFixed(2) }%</td>
+                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />{ getDisplayBalance(stakedBalance) }<br />
+                          <p className="semi_bold">{ `≈ $${tokenPriceInDollars}` }</p></td>
+                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="curr_symbol" />{ getDisplayBalance(earnings) }<br />
+                          <p className="semi_bold">{ `≈ $${earnedInDollars}` }</p></td>
                       </tr>
                     </tbody></table>
                 </div>
                 <div id="boardroom_buttons">
                   <div id="transaction_buttons">
-                    <button className="circular">Deposit <i className="fa-solid fa-circle-arrow-up inv_icon" /></button>
-                    <button className="circular">Withdraw <i className="fa-solid fa-circle-arrow-down inv_icon" /></button>
+                    <button className="circular" 
+                        disabled={approveStatus !== ApprovalState.NOT_APPROVED}
+                        onClick={approve}>Deposit <i className="fa-solid fa-circle-arrow-up inv_icon" /></button>
+                    <button className="circular" 
+                        disabled={stakedBalance.eq(0) || (!canWithdraw && !canClaimReward)}
+                        onClick={onRedeem}>Withdraw <i className="fa-solid fa-circle-arrow-down inv_icon" /></button>
                   </div>
-                  <button className="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" /></button>                            
+                  <button className="circular"  onClick={onReward}
+                        disabled={earnings.eq(0) || !canClaimReward}>Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" /></button>                            
                 </div>
               </div>
             </div>
