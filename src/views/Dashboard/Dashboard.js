@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from 'react';
 import ReactHtmlParser from 'react-html-parser';
 import './style.css';
 import './reset.css';
@@ -7,11 +7,82 @@ import useCurrentEpoch from '../../hooks/useCurrentEpoch';
 import ProgressCountdown from '../Boardroom/components/ProgressCountdown';
 import moment from 'moment';
 import useTreasuryAllocationTimes from '../../hooks/useTreasuryAllocationTimes';
+import useCashPriceInEstimatedTWAP from '../../hooks/useCashPriceInEstimatedTWAP';
+
+import useBombStats from '../../hooks/useBombStats';
+import useLpStats from '../../hooks/useLpStats';
+import useLpStatsBTC from '../../hooks/useLpStatsBTC';
+import useModal from '../../hooks/useModal';
+import useZap from '../../hooks/useZap';
+import useBondStats from '../../hooks/useBondStats';
+import usebShareStats from '../../hooks/usebShareStats';
+import useTotalValueLocked from '../../hooks/useTotalValueLocked';
+import { roundAndFormatNumber } from '../../0x';
+import MetamaskFox from '../../assets/img/metamask-fox.svg';
+import { Box, Button, Card, CardContent, Grid, Paper } from '@material-ui/core';
+import ZapModal from '../Bank/components/ZapModal';
+import { Alert } from '@material-ui/lab';
+import { IoCloseOutline } from 'react-icons/io5';
+import { BiLoaderAlt } from 'react-icons/bi';
+import { makeStyles } from '@material-ui/core/styles';
+import useBombFinance from '../../hooks/useBombFinance';
+import { Helmet } from 'react-helmet';
+import BombImage from '../../assets/img/bomb.png';
+import CountUp from 'react-countup';
+
+import useCashPriceInLastTWAP from '../../hooks/useCashPriceInLastTWAP';
 
 const HtmlComponent = () => {
     const currentEpoch = useCurrentEpoch();
     const { to } = useTreasuryAllocationTimes();
+    const bombStats = useBombStats();
+    const bShareStats = usebShareStats();
+    const tBondStats = useBondStats();
+    const bombFinance = useBombFinance();
+
+    //Bomb stats
+    const bombPriceInDollars = useMemo(
+        () => (bombStats ? Number(bombStats.priceInDollars).toFixed(2) : null),
+        [bombStats],
+      );
+      const bombPriceInBNB = useMemo(() => (bombStats ? Number(bombStats.tokenInFtm).toFixed(4) : null), [bombStats]);
+      const bombCirculatingSupply = useMemo(() => (bombStats ? String(bombStats.circulatingSupply) : null), [bombStats]);
+      const bombTotalSupply = useMemo(() => (bombStats ? String(bombStats.totalSupply) : null), [bombStats]);
     
+      //BShare stats
+      const bSharePriceInDollars = useMemo(
+        () => (bShareStats ? Number(bShareStats.priceInDollars).toFixed(2) : null),
+        [bShareStats],
+      );
+      const bSharePriceInBNB = useMemo(
+        () => (bShareStats ? Number(bShareStats.tokenInFtm).toFixed(4) : null),
+        [bShareStats],
+      );
+      const bShareCirculatingSupply = useMemo(
+        () => (bShareStats ? String(bShareStats.circulatingSupply) : null),
+        [bShareStats],
+      );
+      const bShareTotalSupply = useMemo(() => (bShareStats ? String(bShareStats.totalSupply) : null), [bShareStats]);
+    
+      //Bond stats
+      const tBondPriceInDollars = useMemo(
+        () => (tBondStats ? Number(tBondStats.priceInDollars).toFixed(2) : null),
+        [tBondStats],
+      );
+      const tBondPriceInBNB = useMemo(() => (tBondStats ? Number(tBondStats.tokenInFtm).toFixed(4) : null), [tBondStats]);
+      const tBondCirculatingSupply = useMemo(
+        () => (tBondStats ? String(tBondStats.circulatingSupply) : null),
+        [tBondStats],
+      );
+      const tBondTotalSupply = useMemo(() => (tBondStats ? String(tBondStats.totalSupply) : null), [tBondStats]);  
+      
+      //Aggregate ta==Stats
+      const TVL = useTotalValueLocked();
+      const cashStat = useCashPriceInEstimatedTWAP();
+      const scalingFactor = useMemo(() => (cashStat ? Number(cashStat.priceInDollars).toFixed(4) : null), [cashStat]);
+      const cashPrice = useCashPriceInLastTWAP();
+      const scalingFactor2 = useMemo(() => (cashPrice ? Number(cashPrice.priceInDollars).toFixed(4) : null), [cashPrice]);
+
     return(<div>
         {/*Frontend for Bomb Money Summary Page*/}
         <div className="translucent_box semi_bold" id="summary_top">
@@ -32,26 +103,32 @@ const HtmlComponent = () => {
                     <tr className="table_holdings">
                       <td><div className="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="table_symbol" /></div></td>
                       <td className="regular">$BOMB</td>
-                      <td>8.66M</td>
-                      <td>60.9k</td>
-                      <td>$0.24<br />1.05 BTCB</td>
-                      <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
+                      <td>{ roundAndFormatNumber(bombCirculatingSupply, 2) }</td>
+                      <td>{ roundAndFormatNumber(bombTotalSupply, 2) }</td>
+                      <td>${ bombPriceInDollars ? roundAndFormatNumber(bombPriceInDollars, 2) : '-.--' }<br />{ bombPriceInBNB ? bombPriceInBNB : '-.----' } BTC</td>
+                      <td><img onClick={() => {
+                            bombFinance.watchAssetInMetamask('BOMB');
+                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
                     </tr>
                     <tr className="table_holdings">
                       <td><div className="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="table_symbol" /></div></td>
                       <td className="regular">$BSHARE</td>
-                      <td>11.43k</td>
-                      <td>8.49m</td>
-                      <td>$300<br />13000 BTCB</td>
-                      <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
+                      <td>{ roundAndFormatNumber(bShareCirculatingSupply, 2) }</td>
+                      <td>{ roundAndFormatNumber(bShareTotalSupply, 2) }</td>
+                      <td>${ bSharePriceInDollars ? bSharePriceInDollars : '-.--' }<br />{ bSharePriceInBNB ? bSharePriceInBNB : '-.----' } BNB</td>
+                      <td><img onClick={() => {
+                            bombFinance.watchAssetInMetamask('BOMB');
+                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
                     </tr>
                     <tr className="table_holdings">
                       <td className="noborder"><div className="circ_frame"><img src="https://app.bomb.money/static/media/bbond.6a97acfd.png" className="table_symbol" /></div></td>
                       <td className="regular noborder">$BBOND</td>
-                      <td>20.00K</td>
-                      <td>175k</td>
-                      <td>$0.28<br />1.15 BTCB</td>
-                      <td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
+                      <td>{ roundAndFormatNumber(tBondCirculatingSupply, 2) }</td>
+                      <td>{ roundAndFormatNumber(tBondTotalSupply, 2) }</td>
+                      <td>${ tBondPriceInDollars ? tBondPriceInDollars : '-.--' }<br />{ tBondPriceInBNB ? tBondPriceInBNB : '-.----' } BTC</td>
+                      <td><img onClick={() => {
+                            bombFinance.watchAssetInMetamask('BOMB');
+                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
                     </tr>
                   </tbody></table>
               </div>
@@ -63,19 +140,19 @@ const HtmlComponent = () => {
               <p className="bold_big"><ProgressCountdown base={moment().toDate()} hideBar={true} deadline={to} description="Next Epoch" /></p>
               <p className="bold_small">Next Epoch in</p>
               <hr />
-              <p>Live TWAP: <span className="epoch_blue">1.17</span></p>
-              <p>Live TVL: <span className="epoch_blue">$5,002,412</span></p>
-              <p>Last Epoch TWAP: <span className="epoch_blue">1.22</span></p>
+              <p>Live TWAP: <span className="epoch_blue">{ scalingFactor } BTC</span></p>
+              <p>Live TVL: <span className="epoch_blue"><CountUp end={TVL} separator="," prefix="$" /></span></p>
+              <p>Last Epoch TWAP: <span className="epoch_blue">{ scalingFactor2 } BTC</span></p>
             </div>    
           </div>
         </div>
         <div id="col_2">
           <div id="col_2_lhs">
-            <p id="text_link">Read Investment Strategy &gt;</p>
+            <p id="text_link"><a href="https://bombbshare.medium.com/the-bomb-cycle-how-to-print-forever-e89dc82c12e5">Read Investment Strategy &gt;</a></p>
             <button className="bold_big" id="invest">Invest Now</button>
             <div id="references">
-              <button id="discord" href="https://discord.bomb.money"><i className="fa-brands fa-discord" /> Chat on Discord</button>
-              <button id="documentation" href="https://docs.bomb.money/"><i className="fa-solid fa-file-lines" /> Read Docs</button>
+              <button id="discord"><a href="https://discord.bomb.money"><i className="fa-brands fa-discord" /> Chat on Discord</a></button>
+              <button id="documentation"><a href="https://docs.bomb.money/"><i className="fa-solid fa-file-lines" /> Read Docs</a></button>
             </div>
             <div className="translucent_box" id="boardroom">
               <div id="boardroom_top">
