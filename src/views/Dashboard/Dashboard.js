@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import ReactHtmlParser from 'react-html-parser';
+//imports
+import React, { useMemo, useCallback } from 'react';
 import './style.css';
 import './reset.css';
 
@@ -21,37 +21,28 @@ import useRedeemOnBoardroom from '../../hooks/useRedeemOnBoardroom';
 import useHarvestFromBoardroom from '../../hooks/useHarvestFromBoardroom';
 
 import useBombStats from '../../hooks/useBombStats';
-import useLpStats from '../../hooks/useLpStats';
-import useLpStatsBTC from '../../hooks/useLpStatsBTC';
-import useModal from '../../hooks/useModal';
-import useZap from '../../hooks/useZap';
 import useBondStats from '../../hooks/useBondStats';
 import usebShareStats from '../../hooks/usebShareStats';
 import useTotalValueLocked from '../../hooks/useTotalValueLocked';
 import { roundAndFormatNumber } from '../../0x';
-import MetamaskFox from '../../assets/img/metamask-fox.svg';
-import { Box, Button, Card, CardContent, Grid, Paper } from '@material-ui/core';
-import ZapModal from '../Bank/components/ZapModal';
-import { Alert } from '@material-ui/lab';
-import { IoCloseOutline } from 'react-icons/io5';
-import { BiLoaderAlt } from 'react-icons/bi';
-import { makeStyles } from '@material-ui/core/styles';
 import useBombFinance from '../../hooks/useBombFinance';
-import { Helmet } from 'react-helmet';
-import BombImage from '../../assets/img/bomb.png';
 import CountUp from 'react-countup';
 
 import useCashPriceInLastTWAP from '../../hooks/useCashPriceInLastTWAP';
+import useBondsPurchasable from '../../hooks/useBondsPurchasable';
+import { BOND_REDEEM_PRICE_BN } from '../../bomb-finance/constants';
+import {useTransactionAdder} from '../../state/transactions/hooks';
+import useTokenBalance from '../../hooks/useTokenBalance';
+
 
 const HtmlComponent = () => {
+    //General
     const currentEpoch = useCurrentEpoch();
     const { to } = useTreasuryAllocationTimes();
-    const bombStats = useBombStats();
-    const bShareStats = usebShareStats();
-    const tBondStats = useBondStats();
     const bombFinance = useBombFinance();
 
     //Bomb stats
+    const bombStats = useBombStats();
     const bombPriceInDollars = useMemo(
         () => (bombStats ? Number(bombStats.priceInDollars).toFixed(2) : null),
         [bombStats],
@@ -61,6 +52,7 @@ const HtmlComponent = () => {
     const bombTotalSupply = useMemo(() => (bombStats ? String(bombStats.totalSupply) : null), [bombStats]);
 
     //BShare stats
+    const bShareStats = usebShareStats();
     const bSharePriceInDollars = useMemo(
         () => (bShareStats ? Number(bShareStats.priceInDollars).toFixed(2) : null),
         [bShareStats],
@@ -76,6 +68,7 @@ const HtmlComponent = () => {
     const bShareTotalSupply = useMemo(() => (bShareStats ? String(bShareStats.totalSupply) : null), [bShareStats]);
 
     //Bond stats
+    const tBondStats = useBondStats();
     const tBondPriceInDollars = useMemo(
         () => (tBondStats ? Number(tBondStats.priceInDollars).toFixed(2) : null),
         [tBondStats],
@@ -86,14 +79,35 @@ const HtmlComponent = () => {
         [tBondStats],
     );
     const tBondTotalSupply = useMemo(() => (tBondStats ? String(tBondStats.totalSupply) : null), [tBondStats]);  
-    
+    const isBondPurchasable = useMemo(() => Number(tBondStats?.tokenInFtm) < 1.01, [tBondStats]);
+    const bondsPurchasable = useBondsPurchasable();
+    const addTransaction = useTransactionAdder();
+    const handleBuyBonds = useCallback(
+        async (amount) => {
+          const tx = await bombFinance.buyBonds(amount);
+          addTransaction(tx, {
+            summary: `Buy ${Number(amount).toFixed(2)} BBOND with ${amount} BOMB`,
+          });
+        },
+        [bombFinance, addTransaction],
+    );
+    const handleRedeemBonds = useCallback(
+        async (amount) => {
+          const tx = await bombFinance.redeemBonds(amount);
+          addTransaction(tx, {summary: `Redeem ${amount} BBOND`});
+        },
+        [bombFinance, addTransaction],
+    );
+    const bondBalance = useTokenBalance(bombFinance?.BBOND);
+
     //Aggregate stats
     const TVL = useTotalValueLocked();
     const cashStat = useCashPriceInEstimatedTWAP();
     const scalingFactor = useMemo(() => (cashStat ? Number(cashStat.priceInDollars).toFixed(4) : null), [cashStat]);
     const cashPrice = useCashPriceInLastTWAP();
     const scalingFactor2 = useMemo(() => (cashPrice ? Number(cashPrice.priceInDollars).toFixed(4) : null), [cashPrice]);
-    
+    const isBondRedeemable = useMemo(() => cashPrice.gt(BOND_REDEEM_PRICE_BN), [cashPrice]);
+
     //Boardroom
     const totalStaked = useTotalStakedOnBoardroom();
     const boardroomAPR = useFetchBoardroomAPR();
@@ -127,7 +141,7 @@ const HtmlComponent = () => {
           <hr />
           <div id="summary_top_flex1">
             <div id="holdings_lhs">
-              <div style={{"overflowX":"auto"}}>
+              <div className="table_container" style={{"overflowX":"auto"}}>
                 <table>
                   <tbody><tr id="table_header">
                       <th className="noborder" />
@@ -138,34 +152,34 @@ const HtmlComponent = () => {
                       <th />
                     </tr>
                     <tr className="table_holdings">
-                      <td><div className="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="table_symbol" /></div></td>
+                      <td><div className="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="table_symbol" alt="" /></div></td>
                       <td className="regular">$BOMB</td>
                       <td>{ roundAndFormatNumber(bombCirculatingSupply, 2) }</td>
                       <td>{ roundAndFormatNumber(bombTotalSupply, 2) }</td>
                       <td>${ bombPriceInDollars ? roundAndFormatNumber(bombPriceInDollars, 2) : '-.--' }<br />{ bombPriceInBNB ? bombPriceInBNB : '-.----' } BTC</td>
                       <td><img onClick={() => {
                             bombFinance.watchAssetInMetamask('BOMB');
-                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
+                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" alt="" /></td>
                     </tr>
                     <tr className="table_holdings">
-                      <td><div className="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="table_symbol" /></div></td>
+                      <td><div className="circ_frame"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="table_symbol" alt="" /></div></td>
                       <td className="regular">$BSHARE</td>
                       <td>{ roundAndFormatNumber(bShareCirculatingSupply, 2) }</td>
                       <td>{ roundAndFormatNumber(bShareTotalSupply, 2) }</td>
                       <td>${ bSharePriceInDollars ? bSharePriceInDollars : '-.--' }<br />{ bSharePriceInBNB ? bSharePriceInBNB : '-.----' } BNB</td>
                       <td><img onClick={() => {
                             bombFinance.watchAssetInMetamask('BOMB');
-                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
+                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" alt="" /></td>
                     </tr>
                     <tr className="table_holdings">
-                      <td className="noborder"><div className="circ_frame"><img src="https://app.bomb.money/static/media/bbond.6a97acfd.png" className="table_symbol" /></div></td>
+                      <td className="noborder"><div className="circ_frame"><img src="https://app.bomb.money/static/media/bbond.6a97acfd.png" className="table_symbol" alt="" /></div></td>
                       <td className="regular noborder">$BBOND</td>
                       <td>{ roundAndFormatNumber(tBondCirculatingSupply, 2) }</td>
                       <td>{ roundAndFormatNumber(tBondTotalSupply, 2) }</td>
                       <td>${ tBondPriceInDollars ? tBondPriceInDollars : '-.--' }<br />{ tBondPriceInBNB ? tBondPriceInBNB : '-.----' } BTC</td>
                       <td><img onClick={() => {
                             bombFinance.watchAssetInMetamask('BOMB');
-                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" /></td>
+                            }} src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png" className="metamask_symbol" alt="" /></td>
                     </tr>
                   </tbody></table>
               </div>
@@ -191,10 +205,11 @@ const HtmlComponent = () => {
               <button id="discord"><a href="https://discord.bomb.money"><i className="fa-brands fa-discord" /> Chat on Discord</a></button>
               <button id="documentation"><a href="https://docs.bomb.money/"><i className="fa-solid fa-file-lines" /> Read Docs</a></button>
             </div>
+            {/*Boardroom Section*/}
             <div className="translucent_box" id="boardroom">
               <div id="boardroom_top">
                 <div className="boardroom_head">
-                  <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="title_img" />
+                  <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="title_img" alt="" />
                   <div className="boardroom_head_text">
                     <div id="boardroom_title">
                       <p className="bold_big">Boardroom</p>
@@ -207,7 +222,7 @@ const HtmlComponent = () => {
                   </div>
                 </div>
                 <hr align="right" />
-                <p className="regular">Total Staked: <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />{ getDisplayBalance(totalStaked) }</p>
+                <p className="regular">Total Staked: <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" alt="" />{ getDisplayBalance(totalStaked) }</p>
               </div>
               <div className="boardroom_content">
                 <div style={{"overflowX":"auto"}}>
@@ -219,9 +234,9 @@ const HtmlComponent = () => {
                       </tr>
                       <tr>
                         <td className="bold_big stat_table_cell">{ boardroomAPR.toFixed(2) }%</td>
-                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />{ getDisplayBalance(stakedBalance) }<br />
+                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" alt="" />{ getDisplayBalance(stakedBalance) }<br />
                           <p className="semi_bold">{ `≈ $${tokenPriceInDollars}` }</p></td>
-                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="curr_symbol" />{ getDisplayBalance(earnings) }<br />
+                        <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="curr_symbol" alt="" />{ getDisplayBalance(earnings) }<br />
                           <p className="semi_bold">{ `≈ $${earnedInDollars}` }</p></td>
                       </tr>
                     </tbody></table>
@@ -236,7 +251,7 @@ const HtmlComponent = () => {
                         onClick={onRedeem}>Withdraw <i className="fa-solid fa-circle-arrow-down inv_icon" /></button>
                   </div>
                   <button className="circular"  onClick={onReward}
-                        disabled={earnings.eq(0) || !canClaimReward}>Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" /></button>                            
+                        disabled={earnings.eq(0) || !canClaimReward}>Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" alt="" /></button>                            
                 </div>
               </div>
             </div>
@@ -245,16 +260,17 @@ const HtmlComponent = () => {
             <p className="bold_big" id="latest_news_text">Latest News</p>
           </div>
         </div>
+        {/*Farms Section*/}
         <div className="translucent_box" id="bomb_farms">
           <div id="farms_header">
             <div className="farms_title">
               <p className="bold_big" id="farms_main_title">Bomb Farms</p>
               <p className="regular">Stake your LP tokens in our farms to start earning $BSHARE</p>
             </div>
-            <button className="circular">Claim All <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" /></button>
+            <button className="circular">Claim All <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" alt="" /></button>
           </div>
           <div id="btcb_header">
-            <img src="https://app.bomb.money/static/media/bomb-bitcoin-LP.084590b2.png" className="title_img" />
+            <img src="https://app.bomb.money/static/media/bomb-bitcoin-LP.084590b2.png" className="title_img" alt="" />
             <div id="btcb_header_text">
               <div id="btcb_title">
                 <p className="bold_big">BOMB-BTCB</p>
@@ -264,7 +280,7 @@ const HtmlComponent = () => {
             </div>
           </div>
           <hr align="right" />
-          <div id="btcb_content" style={{"overflowX":"auto"}}>
+          <div id="btcb_content" className="table_container" style={{"overflowX":"auto"}}>
             <table>
               <tbody><tr className="regular">
                   <th className="stat_table_head">Daily Returns:</th>
@@ -273,21 +289,21 @@ const HtmlComponent = () => {
                 </tr>
                 <tr>
                   <td className="bold_big stat_table_cell">2%</td>
-                  <td className="bold_small stat_table_cell"><img src="https://app.bomb.money/static/media/bomb-bitcoin-LP.084590b2.png" className="curr_symbol" />124.21<br />
+                  <td className="bold_small stat_table_cell"><img src="https://app.bomb.money/static/media/bomb-bitcoin-LP.084590b2.png" className="curr_symbol" alt="" />124.21<br />
                     <p className="semi_bold">≈ $1171.62</p></td>
-                  <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />6.4413<br />
+                  <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" alt="" />6.4413<br />
                     <p className="semi_bold">≈ $298.88</p></td>
                 </tr>
               </tbody></table>
             <div>
               <button className="circular">Deposit <i className="fa-solid fa-circle-arrow-up inv_icon" /></button>
               <button className="circular">Withdraw <i className="fa-solid fa-circle-arrow-down inv_icon" /></button>
-              <button className="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" /></button>                            
+              <button className="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" alt="" /></button>                            
             </div>
           </div>
           <hr className="hr_total" />
           <div id="btcb_header">
-            <img src="https://app.bomb.money/static/media/bshare-bnb-LP.9144444a.png" className="title_img" />
+            <img src="https://app.bomb.money/static/media/bshare-bnb-LP.9144444a.png" className="title_img" alt="" />
             <div id="btcb_header_text">
               <div id="btcb_title">
                 <p className="bold_big">BSHARE-BNB</p>
@@ -297,7 +313,7 @@ const HtmlComponent = () => {
             </div>
           </div>
           <hr align="right" />
-          <div id="btcb_content" style={{"overflowX":"auto"}}>
+          <div id="btcb_content" className="table_container" style={{"overflowX":"auto"}}>
             <table>
               <tbody><tr className="regular">
                   <th className="stat_table_head">Daily Returns:</th>
@@ -306,54 +322,58 @@ const HtmlComponent = () => {
                 </tr>
                 <tr>
                   <td className="bold_big stat_table_cell">2%</td>
-                  <td className="bold_small stat_table_cell"><img src="https://app.bomb.money/static/media/bshare-bnb-LP.9144444a.png" className="curr_symbol" />124.21<br />
+                  <td className="bold_small stat_table_cell"><img src="https://app.bomb.money/static/media/bshare-bnb-LP.9144444a.png" className="curr_symbol" alt="" />124.21<br />
                     <p className="semi_bold">≈ $1171.62</p></td>
-                  <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" />6.4413<br />
+                  <td className="bold_small stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="curr_symbol" alt="" />6.4413<br />
                     <p className="semi_bold">≈ $298.88</p></td>
                 </tr>
               </tbody></table>
             <div>
               <button className="circular">Deposit <i className="fa-solid fa-circle-arrow-up inv_icon" /></button>
               <button className="circular">Withdraw <i className="fa-solid fa-circle-arrow-down inv_icon" /></button>
-              <button className="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" /></button>                                         
+              <button className="circular">Claim Rewards <img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15933.png" className="button_symbol" alt="" /></button>                                         
             </div>
           </div>
         </div>
+        {/*Bonds Section*/}
         <div className="translucent_box" id="bonds">
           <div className="boardroom_head">
-            <img src="https://app.bomb.money/static/media/bbond.6a97acfd.png" className="title_img" />
+            <img src="https://app.bomb.money/static/media/bbond.6a97acfd.png" className="title_img" alt="" />
             <div className="boardroom_head_text">
               <p className="bold_big">Bonds</p>
               <p className="regular">BBOND can be purchased only on contraction periods, when TWAP of BOMB is below 1</p>
             </div>
           </div>  
-          <div className="boardroom_content" style={{"overflowX":"auto"}}> 
+          <div className="boardroom_content table_container" style={{"overflowX":"auto"}}> 
             <table>
               <tbody><tr className="regular">
-                  <th className="stat_table_head">Current Price:</th>
+                  <th className="stat_table_head">Current Price: (BOMB)^2</th>
                   <th className="stat_table_head">Available to Redeem:</th>
                 </tr>
                 <tr>
-                  <td className="bold_small stat_table_cell">BBOND = 6.2872 BTCB</td>
-                  <td className="bold_big stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="curr_symbol" />456</td>
+                  <td className="bold_small stat_table_cell">BBOND = { Number(tBondStats?.tokenInFtm).toFixed(4) || '-' } BTCB</td>
+                  <td className="bold_big stat_table_cell"><img src="https://s2.coinmarketcap.com/static/img/coins/200x200/15876.png" className="curr_symbol" alt="" 
+                    />{`${getDisplayBalance(bondBalance)}`}</td>
                 </tr>
               </tbody></table>
             <div>
               <div className="bonds_item">
-                <p className="semi_bold">Purchase BBond<br /><span className="regular">Bomb is over peg</span></p>
-                <button className="circular">Purchase <i className="fa-solid fa-cart-shopping" /></button>
+                <p className="semi_bold">Purchase BBond<br /><span className="regular">{!isBondPurchasable ? 'BOMB is over peg'
+                                                                                        : getDisplayBalance(bondsPurchasable, 18, 4) + ' BBOND available for purchase'
+                                                                                        }</span></p>
+                <button className="circular" onClick={handleBuyBonds}
+                    disabled={!tBondStats || isBondRedeemable}>Purchase <i className="fa-solid fa-cart-shopping" /></button>
               </div>
               <hr id="mini_divider" />
               <div className="bonds_item">
                 <p className="semi_bold">Redeem Bomb</p>
-                <button className="circular">Redeem <i className="fa-solid fa-circle-arrow-down inv_icon" /></button>
+                <button className="circular"  onClick={handleRedeemBonds}
+                  disabled={!tBondStats || bondBalance.eq(0) || !isBondRedeemable}>Redeem <i className="fa-solid fa-circle-arrow-down inv_icon" /></button>
               </div>
             </div>
           </div>  
         </div>
       </div>);
 }
-
-//document.querySelector("#current_epoch").textContent = "Hello";
 
 export default HtmlComponent;
